@@ -12,11 +12,95 @@
       "version": {
         "major": 0,
         "minor": 0,
-        "level": "alpha",
+        "level": "beta",
         "patch": 0
       }
-    }
+    },
+    "software": {
+      "display": {
+        "title": "mysql server",
+        "label": "mysql"
+      }
+    },
+    "timestamp": "2017-11-19T18:09:42+11:00"
   },
   "software": {
+    "base": {
+      "name": "mysql",
+      "accepts": [
+        "ManagedEngine",
+        "ManagedService"
+      ],
+      "publisher_namespace": "EnginesSystem",
+      "type_path": "database/sql/mysql",
+      "service_handle_field": "database_name",
+      "parent_image": "engines/servicebase",
+      "run_as_user": "mysql",
+      "deployment_type": "worker",
+      "memory": {
+        "required": 456,
+        "recommended": 456
+      },
+      "persistent": true
+    },
+    "scripts": {
+      "start": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n\r\n\r\nPID_FILE=/var/run/mysqld/mysqld.pid\r\n\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\nservice_first_run_check\r\n\r\nSIGNAL=0\r\n\r\nif test -f  /var/run/mysqld/mysqld.sock.lock \r\n then\r\n   echo \"Remove stale sock lock\"\r\n   rm  /var/run/mysqld/mysqld.sock.lock\r\nfi \t\r\n\r\n/usr/sbin/mysqld --defaults-file=/etc/mysql/my.cnf --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\ncat /var/log/mysql/error.log\r\n \r\nshutdown_complete\r\n\r\n"
+      },
+      "install": {
+        "language": "sh",
+        "content": "#!/bin/bash\r\n\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\tusermod -G containers -a mysql &&\\\r\n\tmkdir /var/run/mysqld &&\\\r\n\tchown mysql /var/run/mysqld "
+      }
+    },
+    "system_packages": [
+      {
+        "package": "mysql-server"
+      }
+    ],
+    "service_configurations": [
+      {
+        "publisher_namespace": "EnginesSystem",
+        "type_path": "log_rotate",
+        "variables": {
+          "log_name": "",
+          "log_file_path": "",
+          "cycle": "weekly",
+          "rotate": "12"
+        }
+      }
+    ],
+    "constants": [
+      {
+        "name": "rails_flavor",
+        "value": "mysql2"
+      },
+      {
+        "name": "backup_support",
+        "value": "true"
+      }
+    ],
+    "configurators": [
+      {
+        "name": "db_master_pass",
+        "label": "MySQL Master Password",
+        "enable_logging": true,
+        "no_save": true,
+        "variables": [
+          {
+            "name": "db_master_pass",
+            "value": "root password for MySQL",
+            "mandatory": true,
+            "input": {
+              "type": "password_with_confirmation"
+            }
+          }
+        ],
+        "set_script": {
+          "language": "sh",
+          "content": "#!/bin/bash\r\n\r\n. /home/engines/functions/params_to_env.sh\r\nparams_to_env\r\n required_values=\"db_master_pass\"\r\ncheck_required_values\r\n \r\nif test -n $db_master_pass\r\n then  \r\n  mysql -urma -e \"set password for 'root'@'%' = PASSWORD('$db_master_pass'); \"\t \t\t\t\r\nfi"
+        }
+      }
+    ]
   }
 }
