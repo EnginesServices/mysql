@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2017-11-19T18:09:42+11:00"
+    "timestamp": "2017-11-19T18:16:40+11:00"
   },
   "software": {
     "base": {
@@ -63,9 +63,9 @@
         "publisher_namespace": "EnginesSystem",
         "type_path": "log_rotate",
         "variables": {
-          "log_name": "",
-          "log_file_path": "",
-          "cycle": "weekly",
+          "log_name": "myqsl_error_log",
+          "log_file_path": "/services/mysqld/mysql/error.log",
+          "cycle": "daily",
           "rotate": "12"
         }
       }
