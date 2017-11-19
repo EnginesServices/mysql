@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2017-11-19T18:16:40+11:00"
+    "timestamp": "2017-11-19T18:54:59+11:00"
   },
   "software": {
     "base": {
@@ -78,6 +78,74 @@
       {
         "name": "backup_support",
         "value": "true"
+      },
+      {
+        "name": "db_flavor",
+        "value": "mysql2"
+      }
+    ],
+    "consumer_params": [
+      {
+        "name": "database_name",
+        "value": "_Engines_Builder(engine_name)",
+        "mandatory": true,
+        "immutable": true,
+        "input": {
+          "type": "string",
+          "label": "Database name"
+        }
+      },
+      {
+        "name": "database_host",
+        "value": "_Engines_System(mysql_host)",
+        "mandatory": true,
+        "input": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "db_username",
+        "value": "_Engines_Builder(engine_name) ",
+        "mandatory": true,
+        "immutable": true,
+        "input": {
+          "type": "boolean",
+          "label": "DB User Name"
+        }
+      },
+      {
+        "name": "db_password",
+        "value": "_Engines_System(random(10))",
+        "mandatory": true,
+        "input": {
+          "type": "password_with_confirmation"
+        }
+      },
+      {
+        "name": "collation",
+        "value": "utf8_general_ci",
+        "mandatory": true,
+        "immutable": true,
+        "input": {
+          "type": "select_with_input",
+          "label": "Collattion",
+          "collection": {
+            "items": {
+              "utf8_general_ci": "utf8_general_ci",
+              "ascii": "ascii",
+              "utf8mb4_general_ci": "utf8mb4_general_ci"
+            }
+          }
+        }
+      },
+      {
+        "name": "full_access",
+        "value": "false",
+        "input": {
+          "type": "boolean",
+          "label": "Full Database Server Access ",
+          "comment": "Access to all databases includes the ability to delete "
+        }
       }
     ],
     "configurators": [
