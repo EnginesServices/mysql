@@ -2,8 +2,8 @@
   "schema": {
     "type": "service_blueprint",
     "version": {
-      "major": 1,
-      "minor": 0
+      "major": 0,
+      "minor": 1
     },
     "origin": "Engines Developer Studio 0.2"
   },
@@ -27,20 +27,18 @@
   "software": {
     "base": {
       "name": "mysqld",
-      "accepts": [
-        "ManagedEngine",
-        "ManagedService"
-      ],
       "publisher_namespace": "EnginesSystem",
       "type_path": "database/sql/mysql",
       "service_handle_field": "database_name",
       "parent_image": "engines/servicebase",
-      "run_as_user": "mysql",
       "deployment_type": "worker",
       "memory": {
         "required": 456,
         "recommended": 456
       },
+      "run_as_user": "mysql"
+    },
+    "disposition": {
       "persistent": true
     },
     "scripts": {
@@ -106,6 +104,12 @@
         "environment_variable_name": "dbcollation"
       }
     ],
+    "consumers": {
+      "accepts": [
+        "ManagedEngine",
+        "ManagedService"
+      ]
+    },
     "consumer_params": [
       {
         "name": "database_name",
