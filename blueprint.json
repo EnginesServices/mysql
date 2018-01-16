@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2017-11-27T17:20:52+11:00"
+    "timestamp": "2018-01-16T16:30:37+11:00"
   },
   "software": {
     "base": {
@@ -116,6 +116,7 @@
         "value": "_Engines_Builder(engine_name)",
         "mandatory": true,
         "immutable": true,
+        "ask_at_build_time": true,
         "input": {
           "type": "string",
           "label": "Database name"
@@ -134,6 +135,7 @@
         "value": "_Engines_Builder(engine_name) ",
         "mandatory": true,
         "immutable": true,
+        "ask_at_build_time": true,
         "input": {
           "type": "boolean",
           "label": "DB User Name"
@@ -152,6 +154,7 @@
         "value": "utf8_general_ci",
         "mandatory": true,
         "immutable": true,
+        "ask_at_build_time": true,
         "input": {
           "type": "select_with_input",
           "label": "Collattion",
@@ -167,6 +170,7 @@
       {
         "name": "full_access",
         "value": "false",
+        "ask_at_build_time": true,
         "input": {
           "type": "checkbox",
           "label": "Full Database Server Access ",
