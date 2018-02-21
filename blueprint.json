@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2018-01-16T16:30:37+11:00"
+    "timestamp": "2018-02-21T15:34:27+11:00"
   },
   "software": {
     "base": {
@@ -39,7 +39,8 @@
       "run_as_user": "mysql"
     },
     "disposition": {
-      "persistent": true
+      "persistent": true,
+      "consumer_exportable": true
     },
     "scripts": {
       "start": {
