@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2018-02-21T15:34:27+11:00"
+    "timestamp": "2018-03-20T14:59:30+11:00"
   },
   "software": {
     "base": {
@@ -173,7 +173,7 @@
         "value": "false",
         "ask_at_build_time": true,
         "input": {
-          "type": "checkbox",
+          "type": "checkbox_boolean",
           "label": "Full Database Server Access ",
           "comment": "Access to all databases includes the ability to delete "
         }
