@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2018-03-20T15:02:53+11:00"
+    "timestamp": "2018-05-08T13:12:47+10:00"
   },
   "software": {
     "base": {
@@ -133,7 +133,7 @@
       },
       {
         "name": "db_username",
-        "value": "_Engines_Builder(engine_name) ",
+        "value": "_Engines_Builder(engine_name)",
         "mandatory": true,
         "immutable": true,
         "ask_at_build_time": true,
