@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2018-05-08T13:12:47+10:00"
+    "timestamp": "2019-11-25T12:36:34+11:00"
   },
   "software": {
     "base": {
@@ -32,6 +32,8 @@
       "service_handle_field": "database_name",
       "parent_image": "engines/servicebase",
       "deployment_type": "worker",
+      "default_stop_timeout": 0,
+      "restart_attempts": 0,
       "memory": {
         "required": 456,
         "recommended": 456
@@ -40,6 +42,7 @@
     },
     "disposition": {
       "persistent": true,
+      "shareable": true,
       "consumer_exportable": true
     },
     "scripts": {
@@ -184,6 +187,12 @@
             }
           }
         }
+      }
+    ],
+    "actionators": [
+      {
+        "name": "aaa",
+        "return_type": "none"
       }
     ],
     "configurators": [
