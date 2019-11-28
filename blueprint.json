@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2019-11-25T12:36:34+11:00"
+    "timestamp": "2019-11-29T10:55:25+11:00"
   },
   "software": {
     "base": {
@@ -32,13 +32,16 @@
       "service_handle_field": "database_name",
       "parent_image": "engines/servicebase",
       "deployment_type": "worker",
+      "set_state": "running",
       "default_stop_timeout": 0,
+      "restart_policy": "unless-stopped",
       "restart_attempts": 0,
       "memory": {
         "required": 456,
         "recommended": 456
       },
-      "run_as_user": "mysql"
+      "run_as_user": "mysql",
+      "create_user": "1"
     },
     "disposition": {
       "persistent": true,
@@ -48,11 +51,27 @@
     "scripts": {
       "start": {
         "language": "sh",
-        "content": "#!/bin/sh\r\n\r\n\r\nPID_FILE=/var/run/mysqld/mysqld.pid\r\n\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\nservice_first_run_check\r\n\r\nSIGNAL=0\r\n\r\nif test -f  /var/run/mysqld/mysqld.sock.lock \r\n then\r\n   echo \"Remove stale sock lock\"\r\n   rm  /var/run/mysqld/mysqld.sock.lock\r\nfi \t\r\n\r\n/usr/sbin/mysqld --defaults-file=/etc/mysql/my.cnf --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\ncat /var/log/mysql/error.log\r\n \r\nshutdown_complete\r\n\r\n"
+        "content": "#!/bin/sh\r\n\r\n\r\nPID_FILE=/home/engines/run/mysqld.pid\r\n\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\nservice_first_run_check\r\n\r\nSIGNAL=0\r\n\r\nif test -f  /var/run/mysqld/mysqld.sock.lock \r\n then\r\n   echo \"Remove stale sock lock\"\r\n   rm  /var/run/mysqld/mysqld.sock.lock\r\nfi \t\r\n\r\n/usr/sbin/mysqld --defaults-file=/etc/mysql/my.cnf --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\ncat /var/log/mysql/error.log\r\n \r\nshutdown_complete\r\n\r\n"
       },
       "install": {
         "language": "sh",
         "content": "#!/bin/bash\r\n\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\tusermod -G containers -a mysql &&\\\r\n\tmkdir /var/run/mysqld &&\\\r\n\tchown mysql /var/run/mysqld "
+      },
+      "post_install": {
+        "language": "php",
+        "content": "#!/bin/sh\r\n#actually first run\r\npass=`dd if=/dev/urandom count=6 bs=1  | od -h | awk '{ print $2$3$4}'`\r\necho -n $pass > /var/lib/mysql/.pass\r\n\r\nsudo -n /home/engines/scripts/first_run/sudo/_mkdir_rundir.sh\r\n\r\nif ! test -d /var/lib/mysql/mysql\r\n then\r\n   cd /home/mysql   \r\n\tmysqld --initialize-insecure  --explicit_defaults_for_timestamp \t \r\n\t /usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=/home/engines/run/mysqld.pid --socket=/var/run/mysqld/mysqld.sock &\r\n     pid=$! \r\n     sleep 20 \r\n       while ! test -n /var/run/mysqld/mysqld.sock \t\r\n \t     do\r\n \t\t  sleep 10\r\n \t   done\t\r\n\techo \"CREATE USER 'rma'@'localhost';  grant all ON *.* TO  'rma'@'localhost'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\techo \"CREATE USER 'root'@'localhost' identified by '$pass';  grant all ON *.* TO  'root'@'localhost'  WITH GRANT OPTION; \"|mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket  -u root\t\r\n\techo \"CREATE USER 'root'@'%' identified by '$pass';  grant all ON *.* TO  'root'@'%'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\t/usr/bin/mysqladmin  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root  password $pass\t \t\r\n\t kill -TERM $pid\r\n\t wait $pid\r\n\t touch /home/engines/run/flags/first_run_done\r\n fi"
+      },
+      "post_install_sudo": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n#atually first run sudo\r\nif ! test -d  /var/run/mysqld/\r\n then\r\n \techo \"setup run dir\"\r\n \tmkdir -p /var/run/mysqld/\r\n \tchown mysql /var/run/mysqld/\r\nfi\r\n\r\nif ! test -d  /var/log/mysql/\r\n then\r\n \techo \"setup run dir\"\r\n \tmkdir -p /var/log/mysql\r\n \tchown mysql /var/log/mysql/ \t\r\nfi"
+      },
+      "backup": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n\r\nmysqldump -h 127.0.0.1 -u rma  --all-databases --single-transaction  "
+      },
+      "restore": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n#usage -y|n {section}  \r\n#defaults to -n (delete existing data)\r\n# -y will merge\r\n \r\necho $0 $1 $2 >/tmp/called\r\nreplace=$1\r\nsection=$2\r\n\r\n#--replace\r\nif ! test -z $replace\r\n then\r\n  opts=--delete\r\n elif test $replace = -y\r\n  then\r\n   opts=--replace\r\n  else\r\n    opts=--delete\r\nfi\r\n\r\nif ! test -z $section\r\n then\r\n opts=\"$opts --one-database $section\"\r\n fi\r\n \r\ncat - | mysqlimport -B $opts -h 127.0.0.1 -u rma  \r\n\r\n\r\nif test $? -ne 0\r\n then \r\n   cat  /tmp/restore.run\r\n   exit 2\r\nfi\r\n\r\nmysqladmin -u rma flush-privileges\r\n \r\nexit 0"
       }
     },
     "system_packages": [
@@ -113,6 +132,20 @@
         "ManagedEngine",
         "ManagedService"
       ]
+    },
+    "consumer_scripts": {
+      "add": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\nBTICK='`'\r\n\r\nE_BADARGS=65\r\nMYSQL=`which mysql`\r\n\r\nrequired_values=\"database_name db_username db_password collation\"\r\ncheck_required_values\r\n\r\n\r\nchar_set=`echo $collation | cut -f1 -d_`\r\n\r\nif test -z \"$char_set\"\r\n then\r\n \tchar_set=utf8\r\nfi\r\n\r\nQ1=\"CREATE DATABASE IF NOT EXISTS ${BTICK}$database_name${BTICK}   DEFAULT CHARACTER SET $char_set\r\n  DEFAULT COLLATE $collation ;\"\r\nQ2=\"GRANT ALL  PRIVILEGES ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password';\"\r\nQ3=\"Grant Create User on *.* to '$db_username'@'%';\"\r\nQ4=\"FLUSH PRIVILEGES;\"\r\nif ! test -z $full_access\r\n then\r\n\tif test $full_access = true\r\n  \t then\r\n \t   Q5=\"UPDATE mysql.user SET Super_Priv='Y' WHERE user='$dbusername' AND host='%';\"\r\n    elif test $full_access = grant \r\n \t then\r\n \t   Q5=\"GRANT ALL  PRIVILEGES ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password' WITH GRANT OPTION;\"\r\n \tfi\r\n fi\r\n\r\nSQL=\"${Q1}${Q2}${Q3}${Q4}${Q5}\"\r\n\r\n#echo \"$SQL\"\r\n\r\n$MYSQL   -urma  -e \"$SQL\" &> /tmp/res\r\nres=`cat /tmp/res`\r\n\r\necho $res | grep -v ERROR\r\n \r\nif test $? -eq 0\r\n then \r\n\techo \"Success\"\r\n\texit 0\r\nfi\r\n\t\r\necho \"Error:$res\"\r\necho with $SQL\r\nexit 127\r\n\r\n"
+      },
+      "update_sudo": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\nrequired_values=\"database_name db_username db_password\"\r\ncheck_required_values\r\n\r\nBTICK='`'\r\n\r\nE_BADARGS=65\r\nMYSQL=`which mysql`\r\n\r\nQ1=\"set password for '\"$db_username\"'@'%' = PASSWORD('\"$db_password\"');\"\t\r\n\r\n\r\nif ! test -z $full_access\r\n then\r\n   if test $full_access = true\r\n \tthen\r\n \t  Q5=\"UPDATE mysql.user SET Super_Priv='Y' WHERE user='$db_username' AND host='%';\"\r\n   elif test $full_access = grant \r\n     then\r\n       Q5=\"UPDATE mysql.user SET Super_Priv='N' WHERE user='$dbusername' AND host='%';\"\r\n  \t\tQ5=$Q5 \"GRANT ALL PRIVILEGES ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password' WITH GRANT OPTION;\"\r\n    else\t     \r\n \t   Q5=$Q5 \"REVOKE GRANT ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password' ;\"\r\n    fi\r\n fi\r\n\r\nSQL=\"${Q1}${Q2}${Q3}${Q4}${Q5}\"\r\n\r\n#echo \"$SQL\"\r\n\r\n$MYSQL   -urma  -e \"$SQL\" &> /tmp/res\r\nres=`cat /tmp/res`\r\n\r\necho $res | grep -v ERROR\r\n \r\nif test $? -eq 0\r\n then \r\n\techo \"Success\"\r\n\texit 0\r\nfi\r\n\t\r\necho \"Error:$res\"\r\necho  With $SQL\r\nexit 127\r\n\r\n"
+      },
+      "remove": {
+        "language": "sh",
+        "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\nBTICK='`'\r\n\r\nE_BADARGS=65\r\nMYSQL=`which mysql`\r\n\r\n\r\nrequired_values=\"database_name db_username\"\r\ncheck_required_values\r\n\r\n\r\n\r\nQ1=\"DELETE FROM mysql.user where user='$db_username';\"\r\nQ2=\"FLUSH PRIVILEGES;\"\r\nQ3=\"Drop DATABASE  ${BTICK}$database_name${BTICK}   ;\"\r\nSQL=\"${Q1}${Q2}${Q3}\"\r\n\r\n#echo \"$SQL\"\r\n\r\n$MYSQL   -urma  -e \"$SQL\"  $database_name &> /tmp/res\r\nres=`cat /tmp/res`\r\n\r\necho $res | grep -v ERROR\r\n \r\nif test $? -eq 0\r\n then \r\n \techo \"Success\"\r\n\texit 0\r\nfi\r\n\t# dont return error but include note\r\n\techo $res | grep  \"Unknown database\"\r\nif test $? -eq 0\r\n then \r\n\techo \"Database $dbname Not Found\"\r\n\texit 0\r\nfi\r\n\t\r\necho \"Error:$res\"\r\nexit -1\r\n"
+      }
     },
     "consumer_params": [
       {
@@ -191,8 +224,13 @@
     ],
     "actionators": [
       {
-        "name": "aaa",
-        "return_type": "none"
+        "name": "repair_all",
+        "label": "Reapir database",
+        "return_type": "plain_text",
+        "script": {
+          "language": "sh",
+          "content": "#!/bin/sh\r\n\r\nmysqlcheck -urma  --repair --all-databases"
+        }
       }
     ],
     "configurators": [
@@ -213,8 +251,24 @@
         ],
         "set_script": {
           "language": "sh",
-          "content": "#!/bin/bash\r\n\r\n. /home/engines/functions/params_to_env.sh\r\nparams_to_env\r\n required_values=\"db_master_pass\"\r\ncheck_required_values\r\n \r\nif test -n $db_master_pass\r\n then  \r\n  mysql -urma -e \"set password for 'root'@'%' = PASSWORD('$db_master_pass'); \"\t \t\t\t\r\nfi"
+          "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\n required_values=\"db_master_pass\"\r\ncheck_required_values\r\n \r\nif test -n $db_master_pass\r\n then  \r\n  mysql -urma -e \"set password for 'root'@'%' = PASSWORD('$db_master_pass'); \"\t \t\t\t\r\nfi\r\n "
+        },
+        "read_script": {
+          "language": "sh",
+          "content": "#!/bin/sh\r\n\r\nif test -f /home/engines/scripts/configurators/saved/db_master_pass\r\n then\r\n  cat /home/engines/scripts/configurators/saved/db_master_pass\r\nelse\r\n  echo '{\"db_master_pass\":\"Not Saved\"}'\r\nfi\r\n"
         }
+      }
+    ],
+    "log_directories": [
+      "/var/log/mysql"
+    ],
+    "file_permissions": [
+      {
+        "path": "/var/run/mysqld/",
+        "recursive": true,
+        "user": "mysql",
+        "group": "mysql",
+        "permissions": "700"
       }
     ]
   }
