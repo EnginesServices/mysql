@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2019-11-29T10:55:25+11:00"
+    "timestamp": "2019-11-30T12:53:41+11:00"
   },
   "software": {
     "base": {
@@ -58,12 +58,17 @@
         "content": "#!/bin/bash\r\n\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\tusermod -G containers -a mysql &&\\\r\n\tmkdir /var/run/mysqld &&\\\r\n\tchown mysql /var/run/mysqld "
       },
       "post_install": {
-        "language": "php",
-        "content": "#!/bin/sh\r\n#actually first run\r\npass=`dd if=/dev/urandom count=6 bs=1  | od -h | awk '{ print $2$3$4}'`\r\necho -n $pass > /var/lib/mysql/.pass\r\n\r\nsudo -n /home/engines/scripts/first_run/sudo/_mkdir_rundir.sh\r\n\r\nif ! test -d /var/lib/mysql/mysql\r\n then\r\n   cd /home/mysql   \r\n\tmysqld --initialize-insecure  --explicit_defaults_for_timestamp \t \r\n\t /usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=/home/engines/run/mysqld.pid --socket=/var/run/mysqld/mysqld.sock &\r\n     pid=$! \r\n     sleep 20 \r\n       while ! test -n /var/run/mysqld/mysqld.sock \t\r\n \t     do\r\n \t\t  sleep 10\r\n \t   done\t\r\n\techo \"CREATE USER 'rma'@'localhost';  grant all ON *.* TO  'rma'@'localhost'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\techo \"CREATE USER 'root'@'localhost' identified by '$pass';  grant all ON *.* TO  'root'@'localhost'  WITH GRANT OPTION; \"|mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket  -u root\t\r\n\techo \"CREATE USER 'root'@'%' identified by '$pass';  grant all ON *.* TO  'root'@'%'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\t/usr/bin/mysqladmin  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root  password $pass\t \t\r\n\t kill -TERM $pid\r\n\t wait $pid\r\n\t touch /home/engines/run/flags/first_run_done\r\n fi"
+        "language": "php"
       },
       "post_install_sudo": {
+        "language": "sh"
+      },
+      "first_run": {
         "language": "sh",
-        "content": "#!/bin/sh\r\n#atually first run sudo\r\nif ! test -d  /var/run/mysqld/\r\n then\r\n \techo \"setup run dir\"\r\n \tmkdir -p /var/run/mysqld/\r\n \tchown mysql /var/run/mysqld/\r\nfi\r\n\r\nif ! test -d  /var/log/mysql/\r\n then\r\n \techo \"setup run dir\"\r\n \tmkdir -p /var/log/mysql\r\n \tchown mysql /var/log/mysql/ \t\r\nfi"
+        "content": "#!/bin/sh\r\n\r\npass=`dd if=/dev/urandom count=6 bs=1  | od -h | awk '{ print $2$3$4}'`\r\necho -n $pass > /var/lib/mysql/.pass\r\n\r\nsudo -n /home/engines/scripts/first_run/sudo/_mkdir_rundir.sh\r\n\r\nif ! test -d /var/lib/mysql/mysql\r\n then\r\n   cd /home/mysql   \r\n\tmysqld --initialize-insecure  --explicit_defaults_for_timestamp \t \r\n\t /usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=/home/engines/run/mysqld.pid --socket=/var/run/mysqld/mysqld.sock &\r\n     pid=$! \r\n     sleep 20 \r\n       while ! test -n /var/run/mysqld/mysqld.sock \t\r\n \t     do\r\n \t\t  sleep 10\r\n \t   done\t\r\n\techo \"CREATE USER 'rma'@'localhost';  grant all ON *.* TO  'rma'@'localhost'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\techo \"CREATE USER 'root'@'localhost' identified by '$pass';  grant all ON *.* TO  'root'@'localhost'  WITH GRANT OPTION; \"|mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket  -u root\t\r\n\techo \"CREATE USER 'root'@'%' identified by '$pass';  grant all ON *.* TO  'root'@'%'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\t/usr/bin/mysqladmin  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root  password $pass\t \t\r\n\t kill -TERM $pid\r\n\t wait $pid\r\n\t touch /home/engines/run/flags/first_run_done\r\n fi"
+      },
+      "first_run_sudo": {
+        "language": "sh"
       },
       "backup": {
         "language": "sh",
@@ -265,10 +270,11 @@
     "file_permissions": [
       {
         "path": "/var/run/mysqld/",
-        "recursive": true,
+        "recursive": false,
         "user": "mysql",
         "group": "mysql",
-        "permissions": "700"
+        "permissions": "700",
+        "create": "dir"
       }
     ]
   }
