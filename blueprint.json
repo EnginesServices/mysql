@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2019-11-30T12:53:41+11:00"
+    "timestamp": "2020-02-27T16:17:43+11:00"
   },
   "software": {
     "base": {
@@ -224,6 +224,14 @@
               "grant": "Grsnt access rights"
             }
           }
+        }
+      },
+      {
+        "name": "char_set",
+        "value": "utf8",
+        "input": {
+          "type": "string",
+          "title": "Character set"
         }
       }
     ],
