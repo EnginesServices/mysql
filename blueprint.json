@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-02-27T16:17:43+11:00"
+    "timestamp": "2020-05-06T08:17:01+10:00"
   },
   "software": {
     "base": {
@@ -41,6 +41,7 @@
         "recommended": 456
       },
       "run_as_user": "mysql",
+      "user_primary_group": "mysql",
       "create_user": "1"
     },
     "disposition": {
