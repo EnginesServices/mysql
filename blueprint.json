@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-05-06T10:47:47+10:00"
+    "timestamp": "2020-05-07T09:41:13+10:00"
   },
   "software": {
     "base": {
@@ -60,10 +60,12 @@
         "content": "#!/bin/bash\r\n\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\tusermod -G containers -a mysql &&\\\r\n\tmkdir /var/run/mysqld &&\\\r\n\tchown mysql /var/run/mysqld "
       },
       "post_install": {
-        "language": "php"
+        "language": "sh",
+        "content": "#!/bin/sh\r\nsudo -n /home/engines/build/post_install.sh"
       },
       "post_install_sudo": {
-        "language": "sh"
+        "language": "sh",
+        "content": "#!/bin/sh\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\necho event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\necho 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\"
       },
       "first_run": {
         "language": "sh",
