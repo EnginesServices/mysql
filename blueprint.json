@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-05-07T09:41:13+10:00"
+    "timestamp": "2020-05-07T09:46:45+10:00"
   },
   "software": {
     "base": {
@@ -56,8 +56,7 @@
         "content": "#!/bin/sh\r\n\r\nPID_FILE=/var/run/mysqld.pid\r\n\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\nservice_first_run_check\r\n\r\nSIGNAL=0\r\n\r\nif test -f /var/run/mysqld/mysqld.sock.lock \r\n then\r\n   echo \"Remove stale sock lock\"\r\n   rm  /var/run/mysqld/mysqld.sock.lock\r\nfi \t\r\n \r\n/usr/sbin/mysqld --defaults-file=/etc/mysql/my.cnf --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\n \r\nshutdown_complete\r\n"
       },
       "install": {
-        "language": "sh",
-        "content": "#!/bin/bash\r\n\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\techo 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf &&\\\r\n\tusermod -G containers -a mysql &&\\\r\n\tmkdir /var/run/mysqld &&\\\r\n\tchown mysql /var/run/mysqld "
+        "language": "sh"
       },
       "post_install": {
         "language": "sh",
