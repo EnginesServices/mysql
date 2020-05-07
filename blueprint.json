@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-05-07T09:46:45+10:00"
+    "timestamp": "2020-05-07T10:09:25+10:00"
   },
   "software": {
     "base": {
@@ -60,7 +60,7 @@
       },
       "post_install": {
         "language": "sh",
-        "content": "#!/bin/sh\r\nsudo -n /home/engines/build/post_install.sh"
+        "content": "#!/bin/sh\r\nsudo -n /home/engines/scripts/build/sudo/post_install.sh"
       },
       "post_install_sudo": {
         "language": "sh",
