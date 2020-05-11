@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-05-11T18:16:49+10:00"
+    "timestamp": "2020-05-11T18:23:25+10:00"
   },
   "software": {
     "base": {
@@ -68,11 +68,10 @@
       },
       "first_run": {
         "language": "sh",
-        "content": "#!/bin/sh\r\npass=`dd if=/dev/urandom count=12 bs=1  | od -h | awk '{ print $2$3$4}'`\r\necho -n $pass > /var/lib/mysql/.pass\r\n\r\nsudo -n /home/engines/scripts/first_run/sudo/first_run.sh\r\n\r\nif ! test -d /var/lib/mysql/mysql\r\n then\r\n   cd /home/mysql   \r\n\tmysqld --initialize-insecure  --explicit_defaults_for_timestamp \t \r\n\t /usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock &\r\n     pid=$! \r\n     sleep 20 \r\n       while ! test -n /var/run/mysqld/mysqld.sock \t\r\n \t     do\r\n \t\t  sleep 10\r\n \t   done\t\r\n\techo \"CREATE USER 'rma'@'localhost';  grant all ON *.* TO  'rma'@'localhost'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\techo \"CREATE USER 'root'@'localhost' identified by '$pass';  grant all ON *.* TO  'root'@'localhost'  WITH GRANT OPTION; \"|mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket  -u root\t\r\n\techo \"CREATE USER 'root'@'%' identified by '$pass';  grant all ON *.* TO  'root'@'%'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\t/usr/bin/mysqladmin  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root  password $pass\t \t\r\n\t kill -TERM $pid\r\n\t wait $pid\r\n\t touch /home/engines/run/flags/first_run_done\r\n\t \r\n fi\r\n\t "
+        "content": "#!/bin/sh\r\npass=`dd if=/dev/urandom count=12 bs=1  | od -h | awk '{ print $2$3$4}'`\r\necho -n $pass > /var/lib/mysql/.pass\r\n\r\n\r\nif ! test -d /var/lib/mysql/mysql\r\n then\r\n   cd /home/mysql   \r\n\tmysqld --initialize-insecure  --explicit_defaults_for_timestamp \t \r\n\t /usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock &\r\n     pid=$! \r\n     sleep 20 \r\n       while ! test -n /var/run/mysqld/mysqld.sock \t\r\n \t     do\r\n \t\t  sleep 10\r\n \t   done\t\r\n\techo \"CREATE USER 'rma'@'localhost';  grant all ON *.* TO  'rma'@'localhost'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\techo \"CREATE USER 'root'@'localhost' identified by '$pass';  grant all ON *.* TO  'root'@'localhost'  WITH GRANT OPTION; \"|mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket  -u root\t\r\n\techo \"CREATE USER 'root'@'%' identified by '$pass';  grant all ON *.* TO  'root'@'%'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\t/usr/bin/mysqladmin  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root  password $pass\t \t\r\n\t kill -TERM $pid\r\n\t wait $pid\r\n\t touch /home/engines/run/flags/first_run_done\r\n\t \r\n fi\r\n\t "
       },
       "first_run_sudo": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\n\r\nif ! test -d  /var/run/mysqld/\r\n then\r\n \techo \"setup run dir\"\r\n \tmkdir -p /var/run/mysqld/\r\n \tchown mysql /var/run/mysqld/\r\nfi\r\n\r\nif ! test -d  /var/log/mysql/\r\n then\r\n \techo \"setup log dir\"\r\n \tmkdir -p /var/log/mysql\r\n \tchown mysql /var/log/mysql/ \t\r\nfi"
+        "language": "sh"
       },
       "backup": {
         "language": "sh",
