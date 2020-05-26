@@ -1,260 +1,98 @@
 {
-  "schema": {
-    "type": "service_blueprint",
-    "version": {
-      "major": 0,
-      "minor": 1
-    },
-    "origin": "Engines Developer Studio 0.2"
+  "title": "mysql server",
+  "description": "mysql",
+  "memory_usage": {
+    "required": 456,
+    "recommended": 456
   },
-  "metadata": {
-    "blueprint": {
-      "version": {
-        "major": 0,
-        "minor": 0,
-        "level": "rc",
-        "patch": 0
-      }
-    },
-    "software": {
-      "display": {
-        "title": "mysql server",
-        "label": "mysql"
-      }
-    },
-    "timestamp": "2020-05-11T18:23:25+10:00"
+  "licenses": [
+  ],
+  "consumers": [
+    "ManagedEngine",
+    "ManagedService"
+  ],
+  "binding_anchor": {
+    "variables": {
+      "flavor": "mysql2",
+      "host": "^^identifier^^.^^universe.host^^",
+      "name": "^^identifier^^",
+      "username": "^^identifier^^_user",
+      "password": "^^random(10)^^",
+      "collation": "utf8_general_ci",
+      "full_access": "0",
+      "backup_support": true
+    }
   },
-  "software": {
-    "base": {
-      "name": "mysqld",
-      "publisher_namespace": "EnginesSystem",
-      "type_path": "database/sql/mysql",
-      "service_handle_field": "database_name",
-      "parent_image": "engines/servicebase",
-      "deployment_type": "worker",
-      "set_state": "running",
-      "default_stop_timeout": 0,
-      "restart_policy": "unless-stopped",
-      "restart_attempts": 0,
-      "memory": {
-        "required": 456,
-        "recommended": 456
+  "stages": [
+    {
+      "starter": {
+        "image": "engines/servicebase",
+        "tag": "current"
       },
-      "run_as_user": "mysql",
-      "user_id": "22006",
-      "user_primary_group": "mysql",
-      "create_user": "1"
-    },
-    "disposition": {
-      "persistent": true,
-      "shareable": true,
-      "consumer_exportable": true
-    },
-    "scripts": {
-      "start": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\n\r\nPID_FILE=/var/run/mysqld/mysqld.pid\r\n\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\nservice_first_run_check\r\n\r\nSIGNAL=0\r\n\r\nif test -f /var/run/mysqld/mysqld.sock.lock \r\n then\r\n   echo \"Remove stale sock lock\"\r\n   rm  /var/run/mysqld/mysqld.sock.lock\r\nfi \t\r\n \r\n/usr/sbin/mysqld --defaults-file=/etc/mysql/my.cnf --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\n \r\nshutdown_complete\r\n"
+      "state": {
+        "type_path": "database/sql/mysql",
+        "service_handle_field": "database_name",
+        "parent_image": "engines/servicebase",
+        "deployment_type": "worker",
+        "set_state": "running",
+        "default_stop_timeout": 0,
+        "restart_policy": "unless-stopped",
+        "restart_attempts": 0
       },
-      "install": {
-        "language": "sh"
+      "disposition": {
+        "persistent": true,
+        "shareable": true,
+        "consumer_exportable": true
       },
-      "post_install": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\nsudo -n /home/engines/scripts/build/sudo/post_install.sh"
-      },
-      "post_install_sudo": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf \r\necho event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf \r\necho 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf "
-      },
-      "first_run": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\npass=`dd if=/dev/urandom count=12 bs=1  | od -h | awk '{ print $2$3$4}'`\r\necho -n $pass > /var/lib/mysql/.pass\r\n\r\n\r\nif ! test -d /var/lib/mysql/mysql\r\n then\r\n   cd /home/mysql   \r\n\tmysqld --initialize-insecure  --explicit_defaults_for_timestamp \t \r\n\t /usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock &\r\n     pid=$! \r\n     sleep 20 \r\n       while ! test -n /var/run/mysqld/mysqld.sock \t\r\n \t     do\r\n \t\t  sleep 10\r\n \t   done\t\r\n\techo \"CREATE USER 'rma'@'localhost';  grant all ON *.* TO  'rma'@'localhost'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\techo \"CREATE USER 'root'@'localhost' identified by '$pass';  grant all ON *.* TO  'root'@'localhost'  WITH GRANT OPTION; \"|mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket  -u root\t\r\n\techo \"CREATE USER 'root'@'%' identified by '$pass';  grant all ON *.* TO  'root'@'%'  WITH GRANT OPTION; \" |mysql  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root\r\n\t/usr/bin/mysqladmin  -S /var/run/mysqld/mysqld.sock  --protocol=socket -u root  password $pass\t \t\r\n\t kill -TERM $pid\r\n\t wait $pid\r\n\t touch /home/engines/run/flags/first_run_done\r\n\t \r\n fi\r\n\t "
-      },
-      "first_run_sudo": {
-        "language": "sh"
-      },
-      "backup": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\n\r\nmysqldump -h 127.0.0.1 -u rma  --all-databases --single-transaction  "
-      },
-      "restore": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\n#usage -y|n {section}  \r\n#defaults to -n (delete existing data)\r\n# -y will merge\r\n \r\necho $0 $1 $2 >/tmp/called\r\nreplace=$1\r\nsection=$2\r\n\r\n#--replace\r\nif ! test -z $replace\r\n then\r\n  opts=--delete\r\n elif test $replace = -y\r\n  then\r\n   opts=--replace\r\n  else\r\n    opts=--delete\r\nfi\r\n\r\nif ! test -z $section\r\n then\r\n opts=\"$opts --one-database $section\"\r\n fi\r\n \r\ncat - | mysqlimport -B $opts -h 127.0.0.1 -u rma  \r\n\r\n\r\nif test $? -ne 0\r\n then \r\n   cat  /tmp/restore.run\r\n   exit 2\r\nfi\r\n\r\nmysqladmin -u rma flush-privileges\r\n \r\nexit 0"
-      }
-    },
-    "system_packages": [
-      {
-        "package": "mysql-server"
-      },
-      {
-        "package": "mysql-client"
-      }
-    ],
-    "service_configurations": [
-      {
-        "publisher_namespace": "EnginesSystem",
-        "type_path": "log_rotate",
-        "variables": {
-          "log_name": "myqsl_error_log",
-          "log_file_path": "/services/mysqld/mysql/error.log",
-          "cycle": "daily",
-          "rotate": "12"
+      "os_packages": [
+        {
+          "name": "mysql-server"
+        },
+        {
+          "name": "mysql-client"
         }
-      }
-    ],
-    "constants": [
-      {
-        "name": "rails_flavor",
-        "value": "mysql2"
-      },
-      {
-        "name": "backup_support",
-        "value": "true"
-      },
-      {
-        "name": "db_flavor",
-        "value": "mysql2"
-      }
-    ],
-    "target_environment_variables": [
-      {
-        "variable_name": "database_host",
-        "environment_variable_name": "dbhost"
-      },
-      {
-        "variable_name": "database_name",
-        "environment_variable_name": "dbname"
-      },
-      {
-        "variable_name": "db_username",
-        "environment_variable_name": "dbuser"
-      },
-      {
-        "variable_name": "db_password",
-        "environment_variable_name": "dbpasswd"
-      },
-      {
-        "variable_name": "collation",
-        "environment_variable_name": "dbcollation"
-      }
-    ],
-    "consumers": {
-      "accepts": [
-        "ManagedEngine",
-        "ManagedService"
+      ],
+      "service_configurations": [
+        {
+          "type_path": "log_rotate",
+          "variables": {
+            "log_name": "myqsl_error_log",
+            "log_file_path": "/services/mysqld/mysql/error.log",
+            "cycle": "daily",
+            "rotate": "12"
+          }
+        }
+      ],
+      "log_directories": [
+        "/var/log/mysql"
+      ],
+      "file_permissions": [
+        {
+          "path": "/var/run/mysqld/",
+          "recursive": false,
+          "user": "mysql",
+          "group": "mysql",
+          "permissions": "700",
+          "create": "dir"
+        }
       ]
+    }
+  ],
+  "constants": [
+    {
+      "name": "rails_flavor",
+      "value": "mysql2"
     },
-    "consumer_scripts": {
-      "add": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\n\r\n . /home/engines/functions/checks.sh\r\nBTICK='`'\r\n\r\nrequired_values=\"database_name db_username db_password collation\"\r\ncheck_required_values\r\n\r\n\r\nchar_set=`echo $collation | cut -f1 -d_`\r\n\r\nif test -z \"$char_set\"\r\n then\r\n \tchar_set=utf8\r\nfi\r\n\r\necho \"CREATE DATABASE IF NOT EXISTS ${BTICK}$database_name${BTICK}   DEFAULT CHARACTER SET $char_set  DEFAULT COLLATE $collation ;\" >/tmp/add_user\r\necho \"GRANT ALL  PRIVILEGES ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password';\" >>/tmp/add_user\r\necho \"Grant Create User on *.* to '$db_username'@'%';\" >>/tmp/add_user\r\necho \"FLUSH PRIVILEGES;\" >>/tmp/add_user\r\nif ! test -z $full_access\r\n then\r\n\tif test $full_access = true\r\n  \t then\r\n \t   echo \"UPDATE mysql.user SET Super_Priv='Y' WHERE user='$dbusername' AND host='%';\"  >>/tmp/add_user \r\n    elif test $full_access = grant \r\n \t then\r\n \t   echo \"GRANT ALL  PRIVILEGES ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password' WITH GRANT OPTION;\"  >>/tmp/add_user\r\n \tfi\r\n fi\r\n\r\nmysql -urma  < /tmp/add_user &> /tmp/res\r\nsucess=$?\r\nres=`cat /tmp/res`\r\n\r\necho $res | grep -v ERROR\r\n \r\nif test $? -eq 0\r\n then \r\n\techo \"Success\"\r\n\trm /tmp/add_user\r\n\texit 0\r\nfi\r\n\t\r\necho \"Error:$sucess res \"\r\necho with $SQL\r\nexit 127\r\n\r\n"
-      },
-      "update": {
-        "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\nrequired_values=\"database_name db_username db_password\"\r\ncheck_required_values\r\n\r\nBTICK='`'\r\n\r\nE_BADARGS=65\r\nMYSQL=`which mysql`\r\n\r\necho \"set password for '\"$db_username\"'@'%' = PASSWORD('\"$db_password\"');\"  >/tmp/rm_user\t\r\n\r\n\r\nif ! test -z $full_access\r\n then\r\n   if test $full_access = true\r\n \tthen\r\n \t  echo \"UPDATE mysql.user SET Super_Priv='Y' WHERE user='$db_username' AND host='%';\"  >>/tmp/rm_user\r\n   elif test $full_access = grant \r\n     then\r\n      echo \"UPDATE mysql.user SET Super_Priv='N' WHERE user='$dbusername' AND host='%';\"\r\n      echo  \"GRANT ALL PRIVILEGES ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password' WITH GRANT OPTION;\"  >>/tmp/rm_user\r\n    else\t     \r\n \t  echo \"REVOKE GRANT ON ${BTICK}$database_name${BTICK}.* TO '$db_username'@'%' IDENTIFIED BY '$db_password' ;\"  >>/tmp/rm_user\r\n    fi\r\n fi\r\n\r\nmysql -urma  -e </tmp/rm_user &> /tmp/res\r\nsucess=$?\r\nres=`cat /tmp/res`\r\n\r\necho $res | grep -v ERROR\r\n \r\nif test $! -eq 0\r\n then \r\n    rm /tmp/rm_user\r\n\techo \"Success\"\r\n\texit 0\r\nfi\r\n\t\r\necho \"Error:$sucess $res\"\r\necho  With $SQL\r\nexit 127\r\n\r\n"
-      },
-      "update_sudo": {
-        "language": "sh"
-      },
-      "remove": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\nBTICK='`'\r\n\r\nE_BADARGS=65\r\nMYSQL=`which mysql`\r\n\r\n\r\nrequired_values=\"database_name db_username\"\r\ncheck_required_values\r\n\r\n\r\n\r\nQ1=\"DELETE FROM mysql.user where user='$db_username';\"\r\nQ2=\"FLUSH PRIVILEGES;\"\r\nQ3=\"Drop DATABASE  ${BTICK}$database_name${BTICK}   ;\"\r\nSQL=\"${Q1}${Q2}${Q3}\"\r\n\r\n#echo \"$SQL\"\r\n\r\n$MYSQL   -urma  -e \"$SQL\"  $database_name &> /tmp/res\r\nres=`cat /tmp/res`\r\n\r\necho $res | grep -v ERROR\r\n \r\nif test $? -eq 0\r\n then \r\n \techo \"Success\"\r\n\texit 0\r\nfi\r\n\t# dont return error but include note\r\n\techo $res | grep  \"Unknown database\"\r\nif test $? -eq 0\r\n then \r\n\techo \"Database $dbname Not Found\"\r\n\texit 0\r\nfi\r\n\t\r\necho \"Error:$res\"\r\nexit -1\r\n"
-      }
+    {
+      "name": "backup_support",
+      "value": "true"
     },
-    "consumer_params": [
-      {
-        "name": "database_name",
-        "value": "_Engines_Builder(engine_name)",
-        "mandatory": true,
-        "immutable": true,
-        "ask_at_build_time": true,
-        "input": {
-          "type": "string",
-          "label": "Database name"
-        }
-      },
-      {
-        "name": "database_host",
-        "value": "_Engines_System(mysql_host)",
-        "mandatory": true,
-        "input": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "db_username",
-        "value": "_Engines_Builder(engine_name)",
-        "mandatory": true,
-        "immutable": true,
-        "ask_at_build_time": true,
-        "input": {
-          "type": "boolean",
-          "label": "DB User Name"
-        }
-      },
-      {
-        "name": "db_password",
-        "value": "_Engines_System(random(10))",
-        "mandatory": true,
-        "input": {
-          "type": "password_with_confirmation"
-        }
-      },
-      {
-        "name": "collation",
-        "value": "utf8_general_ci",
-        "mandatory": true,
-        "immutable": true,
-        "ask_at_build_time": true,
-        "input": {
-          "type": "select_with_input",
-          "label": "Collattion",
-          "collection": {
-            "items": {
-              "utf8_general_ci": "utf8_general_ci",
-              "ascii": "ascii",
-              "utf8mb4_general_ci": "utf8mb4_general_ci"
-            }
-          }
-        }
-      },
-      {
-        "name": "full_access",
-        "value": "false",
-        "ask_at_build_time": true,
-        "input": {
-          "type": "select",
-          "label": "Full Database Server Access ",
-          "comment": "Access to all databases includes the ability to delete ",
-          "collection": {
-            "items": {
-              "true": "Full access to all db",
-              "false": "access to this db",
-              "grant": "Grsnt access rights"
-            }
-          }
-        }
-      },
-      {
-        "name": "char_set",
-        "value": "utf8",
-        "input": {
-          "type": "string",
-          "title": "Character set"
-        }
-      }
-    ],
-    "actionators": [
-      {
-        "name": "repair_all",
-        "label": "Repair databases",
-        "return_type": "plain_text",
-        "script": {
-          "language": "sh",
-          "content": "#!/bin/sh\r\n\r\nmysqlcheck -u rma  --repair --all-databases"
-        }
-      }
-    ],
-    "configurators": [
+    {
+      "name": "db_flavor",
+      "value": "mysql2"
+    }
+  ],
+  "configurators": [
       {
         "name": "db_master_pass",
         "label": "MySQL Master Password",
@@ -269,28 +107,7 @@
               "type": "password_with_confirmation"
             }
           }
-        ],
-        "set_script": {
-          "language": "sh",
-          "content": "#!/bin/sh\r\n\r\n\r\n . /home/engines/functions/checks.sh\r\n required_values=\"db_master_pass\"\r\ncheck_required_values\r\n \r\nif test -n $db_master_pass\r\n then  \r\n  mysql -urma -e \\\"set password for 'root'@'%' = PASSWORD('$db_master_pass'); \\\"\t\r\n  mysql -urma -e \\\"set password for 'root'@'localhost' = PASSWORD('$db_master_pass'); \\\"\t \t\t\t\r\nfi\r\n \r\n\r\n"
-        },
-        "read_script": {
-          "language": "sh",
-          "content": "#!/bin/sh\r\n\r\nif test -f /home/engines/scripts/configurators/saved/db_master_pass\r\n then\r\n  cat /home/engines/scripts/configurators/saved/db_master_pass\r\nelse\r\n  echo '{\"db_master_pass\":\"Not Saved\"}'\r\nfi\r\n"
-        }
-      }
-    ],
-    "log_directories": [
-      "/var/log/mysql"
-    ],
-    "file_permissions": [
-      {
-        "path": "/var/run/mysqld/",
-        "recursive": false,
-        "user": "mysql",
-        "group": "mysql",
-        "permissions": "700",
-        "create": "dir"
+        ]
       }
     ]
   }
