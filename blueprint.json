@@ -7,10 +7,6 @@
   },
   "licenses": [
   ],
-  "consumers": [
-    "ManagedEngine",
-    "ManagedService"
-  ],
   "binding_anchor": {
     "variables": {
       "flavor": "mysql2",
