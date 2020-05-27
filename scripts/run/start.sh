@@ -1,0 +1,3 @@
+#!/bin/sh
+
+PID_FILE=/var/run/mysqld/mysqld.pid\r\n\r\nexport PID_FILE\r\n. /home/engines/functions/trap.sh\r\n\r\nservice_first_run_check\r\n\r\nSIGNAL=0\r\n\r\nif test -f /var/run/mysqld/mysqld.sock.lock \r\n then\r\n   echo \"Remove stale sock lock\"\r\n   rm  /var/run/mysqld/mysqld.sock.lock\r\nfi \t\r\n \r\n/usr/sbin/mysqld --defaults-file=/etc/mysql/my.cnf --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=$PID_FILE --socket=/var/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &\r\n\r\nstartup_complete\r\n\r\nwait \r\nexit_code=$?\r\n \r\nshutdown_complete\r\n
