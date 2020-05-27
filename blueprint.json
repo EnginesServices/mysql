@@ -23,6 +23,17 @@
       "backup_support": true
     }
   },
+  "service_configurations": [
+    {
+      "type_path": "log_rotate",
+      "variables": {
+        "log_name": "myqsl_error_log",
+        "log_file_path": "/services/mysqld/mysql/error.log",
+        "cycle": "daily",
+        "rotate": "12"
+      }
+    }
+  ],
   "stages": [
     {
       "starter": {
@@ -38,28 +49,17 @@
         "restart_policy": "unless-stopped",
         "restart_attempts": 0
       },
-      "disposition": {
-        "persistent": true,
-        "shareable": true,
-        "consumer_exportable": true
-      },
+      "disposition": [
+        "persistent",
+        "shareable",
+        "consumer_exportable"
+      ],
       "os_packages": [
         {
           "name": "mysql-server"
         },
         {
           "name": "mysql-client"
-        }
-      ],
-      "service_configurations": [
-        {
-          "type_path": "log_rotate",
-          "variables": {
-            "log_name": "myqsl_error_log",
-            "log_file_path": "/services/mysqld/mysql/error.log",
-            "cycle": "daily",
-            "rotate": "12"
-          }
         }
       ],
       "log_directories": [
