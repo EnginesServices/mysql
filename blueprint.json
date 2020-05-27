@@ -19,14 +19,11 @@
       "backup_support": true
     }
   },
-  "service_configurations": [
+  "bindings": [
     {
-      "type_path": "log_rotate",
-      "variables": {
-        "log_name": "myqsl_error_log",
-        "log_file_path": "/services/mysqld/mysql/error.log",
-        "cycle": "daily",
-        "rotate": "12"
+      "descriptor": {
+        "repository": "https://github.com/EnginesServices/logrotate.git",
+        "branch": "spaces"
       }
     }
   ],
