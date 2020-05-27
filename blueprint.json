@@ -32,7 +32,6 @@
       "state": {
         "type_path": "database/sql/mysql",
         "service_handle_field": "database_name",
-        "parent_image": "engines/servicebase",
         "deployment_type": "worker",
         "set_state": "running",
         "default_stop_timeout": 0,
@@ -70,8 +69,6 @@
         {
           "path": "/var/run/mysqld/",
           "recursive": false,
-          "user": "mysql",
-          "group": "mysql",
           "permissions": "700",
           "create": "dir"
         }
@@ -91,24 +88,5 @@
       "name": "db_flavor",
       "value": "mysql2"
     }
-  ],
-  "configurators": [
-      {
-        "name": "db_master_pass",
-        "label": "MySQL Master Password",
-        "enable_logging": true,
-        "no_save": true,
-        "variables": [
-          {
-            "name": "db_master_pass",
-            "value": "root password for MySQL",
-            "mandatory": true,
-            "input": {
-              "type": "password_with_confirmation"
-            }
-          }
-        ]
-      }
-    ]
-  }
+  ]
 }
