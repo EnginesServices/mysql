@@ -19,6 +19,14 @@
       "backup_support": true
     }
   },
+  "bindings": [
+    {
+      "descriptor": {
+        "repository": "https://github.com/EnginesServices/logrotate.git",
+        "branch": "spaces"
+      }
+    }
+  ],
   "stages": [
     {
       "starter": {
