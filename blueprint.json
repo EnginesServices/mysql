@@ -22,7 +22,7 @@
   "bindings": [
     {
       "descriptor": {
-        "repository": "https://github.com/EnginesServices/logrotate.git",
+        "repository": "https://github.com/MarkRatjens/logrotate.git",
         "branch": "spaces"
       }
     }
