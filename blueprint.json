@@ -1,10 +1,7 @@
 {
   "title": "mysql server",
   "description": "mysql",
-  "memory_usage": {
-    "required": 456,
-    "recommended": 456
-  },
+  "memory_usage": 456,
   "licenses": [
   ],
   "binding_anchor": {
@@ -33,20 +30,6 @@
         "image": "engines/servicebase",
         "tag": "current"
       },
-      "state": {
-        "type_path": "database/sql/mysql",
-        "service_handle_field": "database_name",
-        "deployment_type": "worker",
-        "set_state": "running",
-        "default_stop_timeout": 0,
-        "restart_policy": "unless-stopped",
-        "restart_attempts": 0
-      },
-      "disposition": [
-        "persistent",
-        "shareable",
-        "consumer_exportable"
-      ],
       "os_packages": [
         {
           "name": "mysql-server"
@@ -54,32 +37,23 @@
         {
           "name": "mysql-client"
         }
-      ],
-      "log_directories": [
-        "/var/log/mysql"
-      ],
-      "file_permissions": [
-        {
-          "path": "/var/run/mysqld/",
-          "recursive": false,
-          "permissions": "700",
-          "create": "dir"
-        }
       ]
     }
   ],
-  "constants": [
-    {
-      "name": "rails_flavor",
-      "value": "mysql2"
-    },
-    {
-      "name": "backup_support",
-      "value": "true"
-    },
-    {
-      "name": "db_flavor",
-      "value": "mysql2"
-    }
-  ]
+  "environment": {
+    "variables": [
+      {
+        "name": "rails_flavor",
+        "value": "mysql2"
+      },
+      {
+        "name": "backup_support",
+        "value": "true"
+      },
+      {
+        "name": "db_flavor",
+        "value": "mysql2"
+      }
+    ]
+  }
 }
