@@ -40,20 +40,14 @@
       ]
     }
   ],
-  "environment": {
-    "variables": [
-      {
-        "name": "rails_flavor",
-        "value": "mysql2"
-      },
-      {
-        "name": "backup_support",
-        "value": "true"
-      },
-      {
-        "name": "db_flavor",
-        "value": "mysql2"
-      }
-    ]
-  }
+  "file_permissions": [
+    {
+      "path": "/var/run/mysqld/",
+      "recursive": false,
+      "user": "mysql",
+      "group": "mysql",
+      "permissions": "700",
+      "create": "dir"
+    }
+  ]
 }
