@@ -1,15 +1,8 @@
 {
   "title": "mysql server",
   "description": "mysql",
-  "memory_usage": {
-    "required": 456,
-    "recommended": 456
-  },
+  "memory_usage": 456,
   "licenses": [
-  ],
-  "consumers": [
-    "ManagedEngine",
-    "ManagedService"
   ],
   "binding_anchor": {
     "variables": {
@@ -23,26 +16,19 @@
       "backup_support": true
     }
   },
+  "bindings": [
+    {
+      "descriptor": {
+        "repository": "https://github.com/MarkRatjens/logrotate.git",
+        "branch": "spaces"
+      }
+    }
+  ],
   "stages": [
     {
       "starter": {
         "image": "engines/servicebase",
         "tag": "current"
-      },
-      "state": {
-        "type_path": "database/sql/mysql",
-        "service_handle_field": "database_name",
-        "parent_image": "engines/servicebase",
-        "deployment_type": "worker",
-        "set_state": "running",
-        "default_stop_timeout": 0,
-        "restart_policy": "unless-stopped",
-        "restart_attempts": 0
-      },
-      "disposition": {
-        "persistent": true,
-        "shareable": true,
-        "consumer_exportable": true
       },
       "os_packages": [
         {
@@ -51,64 +37,17 @@
         {
           "name": "mysql-client"
         }
-      ],
-      "service_configurations": [
-        {
-          "type_path": "log_rotate",
-          "variables": {
-            "log_name": "myqsl_error_log",
-            "log_file_path": "/services/mysqld/mysql/error.log",
-            "cycle": "daily",
-            "rotate": "12"
-          }
-        }
-      ],
-      "log_directories": [
-        "/var/log/mysql"
-      ],
-      "file_permissions": [
-        {
-          "path": "/var/run/mysqld/",
-          "recursive": false,
-          "user": "mysql",
-          "group": "mysql",
-          "permissions": "700",
-          "create": "dir"
-        }
       ]
     }
   ],
-  "constants": [
+  "file_permissions": [
     {
-      "name": "rails_flavor",
-      "value": "mysql2"
-    },
-    {
-      "name": "backup_support",
-      "value": "true"
-    },
-    {
-      "name": "db_flavor",
-      "value": "mysql2"
+      "path": "/var/run/mysqld/",
+      "recursive": false,
+      "user": "mysql",
+      "group": "mysql",
+      "permissions": "700",
+      "create": "dir"
     }
-  ],
-  "configurators": [
-      {
-        "name": "db_master_pass",
-        "label": "MySQL Master Password",
-        "enable_logging": true,
-        "no_save": true,
-        "variables": [
-          {
-            "name": "db_master_pass",
-            "value": "root password for MySQL",
-            "mandatory": true,
-            "input": {
-              "type": "password_with_confirmation"
-            }
-          }
-        ]
-      }
-    ]
-  }
+  ]
 }
