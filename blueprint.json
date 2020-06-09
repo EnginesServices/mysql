@@ -37,17 +37,17 @@
         {
           "name": "mysql-client"
         }
+      ],
+      "file_permissions": [
+        {
+          "path": "/var/run/mysqld/",
+          "recursive": false,
+          "user": "mysql",
+          "group": "mysql",
+          "permissions": "700",
+          "create": "dir"
+        }
       ]
-    }
-  ],
-  "file_permissions": [
-    {
-      "path": "/var/run/mysqld/",
-      "recursive": false,
-      "user": "mysql",
-      "group": "mysql",
-      "permissions": "700",
-      "create": "dir"
     }
   ]
 }
