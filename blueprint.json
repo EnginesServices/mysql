@@ -24,6 +24,12 @@
       }
     }
   ],
+  "user": {
+    "identifier": "22006",
+    "name": "mysql",
+    "group": "mysql",
+    "create": true
+  },
   "stages": [
     {
       "starter": {
