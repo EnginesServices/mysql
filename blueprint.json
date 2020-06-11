@@ -27,7 +27,6 @@
   "user": {
     "identifier": "22006",
     "name": "mysql",
-    "group": "mysql",
     "create": true
   },
   "stages": [
@@ -44,12 +43,11 @@
           "name": "mysql-client"
         }
       ],
-      "file_permissions": [
+      "ownership_and_permissions": [
         {
           "path": "/var/run/mysqld/",
           "recursive": false,
           "user": "mysql",
-          "group": "mysql",
           "permissions": "700",
           "create": "dir"
         }
