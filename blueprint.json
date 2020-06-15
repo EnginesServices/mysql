@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-06-15T10:22:27+10:00"
+    "timestamp": "2020-06-15T10:51:12+10:00"
   },
   "software": {
     "base": {
@@ -60,11 +60,10 @@
       },
       "post_install": {
         "language": "sh",
-        "content": "#!/bin/sh\r\nsudo -n /home/engines/scripts/build/sudo/post_install.sh"
+        "content": "#!/bin/sh\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf \r\necho event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf \r\necho 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf "
       },
       "post_install_sudo": {
-        "language": "sh",
-        "content": "#!/bin/sh\r\necho max_allowed_packet = 4M >> /etc/mysql/mysql.conf.d/mysqld.cnf \r\necho event-scheduler = 1 >> /etc/mysql/mysql.conf.d/mysqld.cnf \r\necho 'sql_mode=\"\"' >> /etc/mysql/mysql.conf.d/mysqld.cnf "
+        "language": "sh"
       },
       "first_run": {
         "language": "sh",
