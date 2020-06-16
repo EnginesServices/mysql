@@ -19,6 +19,16 @@
   "bindings": [
     {
       "descriptor": {
+        "repository": "https://github.com/MarkRatjens/volmgr.git",
+        "branch": "spaces"
+      },
+      "variables": {
+        "path": "/var/lib/mysql",
+        "exclude_from_backup": "true"
+      }
+    },
+    {
+      "descriptor": {
         "repository": "https://github.com/MarkRatjens/logrotate.git",
         "branch": "spaces"
       }
