@@ -23,7 +23,7 @@
         "branch": "spaces"
       },
       "variables": {
-        "path": "/var/lib/^^identifier^^",
+        "path": "/var/lib/mysql",
         "exclude_from_backup": "true"
       }
     },
