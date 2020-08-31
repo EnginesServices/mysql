@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-06-15T10:51:12+10:00"
+    "timestamp": "2020-08-31T16:02:19+10:00"
   },
   "software": {
     "base": {
@@ -291,6 +291,73 @@
           "language": "sh",
           "content": "#!/bin/sh\r\n\r\nif test -f /home/engines/scripts/configurators/saved/db_master_pass\r\n then\r\n  cat /home/engines/scripts/configurators/saved/db_master_pass\r\nelse\r\n  echo '{\"db_master_pass\":\"Not Saved\"}'\r\nfi\r\n"
         }
+      },
+      {
+        "name": "event-scheduler",
+        "variables": [
+          {
+            "name": "event-scheduler",
+            "input": {
+              "type": "select",
+              "collection": {
+                "items": {
+                  "1": "enabled",
+                  "0": "disabled"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "innodb_buffer_pool_size",
+        "variables": [
+          {
+            "name": "innodb_buffer_pool_size",
+            "input": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      {
+        "name": "max_allowed_packet",
+        "variables": [
+          {
+            "name": "max_allowed_packet",
+            "input": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      {
+        "name": "local_infile",
+        "variables": [
+          {
+            "name": "local_infile",
+            "input": {
+              "type": "select",
+              "collection": {
+                "items": {
+                  "0": "disable",
+                  "1": "enable"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "sql_mode",
+        "variables": [
+          {
+            "name": "sql_mode",
+            "input": {
+              "type": "string"
+            }
+          }
+        ]
       }
     ],
     "log_directories": [
