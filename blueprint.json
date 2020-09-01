@@ -22,7 +22,7 @@
         "label": "mysql"
       }
     },
-    "timestamp": "2020-08-31T16:02:19+10:00"
+    "timestamp": "2020-09-01T10:04:45+10:00"
   },
   "software": {
     "base": {
@@ -293,10 +293,10 @@
         }
       },
       {
-        "name": "event-scheduler",
+        "name": "event_scheduler",
         "variables": [
           {
-            "name": "event-scheduler",
+            "name": "event_scheduler",
             "input": {
               "type": "select",
               "collection": {
